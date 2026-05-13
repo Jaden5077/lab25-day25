@@ -1,4 +1,12 @@
+import pytest
+
 from reliability_lab.config import load_config
+
+
+@pytest.fixture(autouse=True)
+def _clear_redis_url_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("REDIS_URL", raising=False)
+    monkeypatch.delenv("RELIABILITY_LAB_REDIS_URL", raising=False)
 
 
 def test_default_config_loads() -> None:

@@ -51,5 +51,11 @@ class LabConfig(BaseModel):
 
 
 def load_config(path: str | Path) -> LabConfig:
+    from reliability_lab.redis_env import get_redis_url_from_environment
+
     raw: dict[str, Any] = yaml.safe_load(Path(path).read_text())
-    return LabConfig.model_validate(raw)
+    cfg = LabConfig.model_validate(raw)
+    env_url = get_redis_url_from_environment()
+    if env_url:
+        cfg = cfg.model_copy(update={"cache": cfg.cache.model_copy(update={"redis_url": env_url})})
+    return cfg

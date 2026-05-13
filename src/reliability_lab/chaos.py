@@ -7,6 +7,7 @@ from pathlib import Path
 from reliability_lab.cache import ResponseCache, SharedRedisCache
 from reliability_lab.circuit_breaker import CircuitBreaker
 from reliability_lab.config import LabConfig, ScenarioConfig
+from reliability_lab.redis_env import effective_redis_url
 from reliability_lab.gateway import GatewayResponse, ReliabilityGateway
 from reliability_lab.metrics import RunMetrics
 from reliability_lab.providers import FakeLLMProvider
@@ -56,7 +57,7 @@ def build_gateway(
     if cache_enabled:
         if config.cache.backend == "redis":
             cache = SharedRedisCache(
-                config.cache.redis_url,
+                effective_redis_url(config.cache),
                 config.cache.ttl_seconds,
                 sim_threshold,
             )
