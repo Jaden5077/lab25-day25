@@ -5,8 +5,6 @@ from __future__ import annotations
 import random
 from typing import Any
 
-import pytest
-
 from reliability_lab.circuit_breaker import CircuitBreaker
 from reliability_lab.chaos import (
     build_gateway,
@@ -22,8 +20,18 @@ from reliability_lab.config import LabConfig, ScenarioConfig
 def _tiny_lab_config(**overrides: Any) -> LabConfig:
     data: dict[str, object] = {
         "providers": [
-            {"name": "primary", "fail_rate": 0.0, "base_latency_ms": 1, "cost_per_1k_tokens": 0.001},
-            {"name": "backup", "fail_rate": 0.0, "base_latency_ms": 1, "cost_per_1k_tokens": 0.001},
+            {
+                "name": "primary",
+                "fail_rate": 0.0,
+                "base_latency_ms": 1,
+                "cost_per_1k_tokens": 0.001,
+            },
+            {
+                "name": "backup",
+                "fail_rate": 0.0,
+                "base_latency_ms": 1,
+                "cost_per_1k_tokens": 0.001,
+            },
         ],
         "circuit_breaker": {
             "failure_threshold": 2,
@@ -75,9 +83,16 @@ def test_build_gateway_cache_enabled_override() -> None:
 def test_collect_metrics_classifies_routes() -> None:
     random.seed(0)
     cfg = _tiny_lab_config(
-        cache={"enabled": False, "backend": "memory", "ttl_seconds": 300, "similarity_threshold": 0.9}
+        cache={
+            "enabled": False,
+            "backend": "memory",
+            "ttl_seconds": 300,
+            "similarity_threshold": 0.9,
+        }
     )
-    gw = build_gateway(cfg, ScenarioConfig(name="t", provider_overrides={"primary": 1.0}))
+    gw = build_gateway(
+        cfg, ScenarioConfig(name="t", provider_overrides={"primary": 1.0})
+    )
     m = collect_metrics_for_gateway(gw, cfg, ["hello", "world"])
     assert m.total_requests == 5
     assert m.fallback_successes >= 1
@@ -88,7 +103,9 @@ def test_scenario_passes_primary_timeout() -> None:
     m = collect_metrics_for_gateway(
         build_gateway(
             _tiny_lab_config(),
-            ScenarioConfig(name="primary_timeout_100", provider_overrides={"primary": 1.0}),
+            ScenarioConfig(
+                name="primary_timeout_100", provider_overrides={"primary": 1.0}
+            ),
         ),
         _tiny_lab_config(),
         ["q"],
