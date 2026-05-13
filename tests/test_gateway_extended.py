@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import re
 
+import pytest
+
 from reliability_lab.cache import ResponseCache
 from reliability_lab.circuit_breaker import CircuitBreaker, CircuitOpenError
 from reliability_lab.gateway import ReliabilityGateway
@@ -74,7 +76,7 @@ def test_cost_budget_blocks_after_cumulative_spend() -> None:
         [p],
         {"p": CircuitBreaker("p", failure_threshold=5, reset_timeout_seconds=1.0)},
         None,
-        cost_budget=0.015,
+        cost_budget=0.01,
     )
     r1 = gw.complete("a")
     assert r1.route.startswith("primary")

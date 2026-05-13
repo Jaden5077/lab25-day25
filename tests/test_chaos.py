@@ -35,7 +35,7 @@ def _tiny_lab_config(**overrides: Any) -> LabConfig:
             "backend": "memory",
             "ttl_seconds": 300,
             "similarity_threshold": 0.85,
-            "redis_url": "redis://localhost:6379/0",
+            "redis_url": "fakeredis://lab/0",
         },
         "load_test": {"requests": 5},
         "scenarios": [],

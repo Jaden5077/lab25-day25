@@ -13,10 +13,11 @@ circuit_breaker:
   success_threshold: 1
 cache:
   enabled: true
-  backend: memory          # "memory" (default) or "redis" (requires docker compose up -d)
+  backend: memory          # "memory" (default) or "redis" (see redis_url)
   ttl_seconds: 300
   similarity_threshold: 0.92
-  redis_url: "redis://localhost:6379/0"
+  # fakeredis:// = in-process RAM (no daemon). redis:// = real Redis server.
+  redis_url: "fakeredis://lab/0"
 load_test:
   requests: 40
 

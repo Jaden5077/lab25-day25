@@ -28,6 +28,30 @@ def _looks_like_false_hit(query: str, cached_key: str) -> bool:
     return bool(nums_q and nums_c and nums_q != nums_c)
 
 
+# One FakeServer per hostname so multiple clients can share the same in-memory keyspace.
+_fakeredis_servers: dict[str, Any] = {}
+
+
+def _redis_client_from_url(redis_url: str) -> Any:
+    """Return a redis-py client. ``fakeredis://`` uses in-process RAM (no Redis daemon)."""
+    from urllib.parse import urlparse
+
+    parsed = urlparse(redis_url)
+    if parsed.scheme == "fakeredis":
+        import fakeredis
+
+        name = parsed.hostname or "default"
+        if name not in _fakeredis_servers:
+            _fakeredis_servers[name] = fakeredis.FakeServer()
+        return fakeredis.FakeStrictRedis(
+            server=_fakeredis_servers[name],
+            decode_responses=True,
+        )
+    import redis as redis_lib
+
+    return redis_lib.Redis.from_url(redis_url, decode_responses=True)
+
+
 # ---------------------------------------------------------------------------
 # In-memory cache
 # ---------------------------------------------------------------------------
@@ -125,13 +149,11 @@ class SharedRedisCache:
         similarity_threshold: float,
         prefix: str = "rl:cache:",
     ):
-        import redis as redis_lib
-
         self.ttl_seconds = ttl_seconds
         self.similarity_threshold = similarity_threshold
         self.prefix = prefix
         self.false_hit_log: list[dict[str, object]] = []
-        self._redis: Any = redis_lib.Redis.from_url(redis_url, decode_responses=True)
+        self._redis: Any = _redis_client_from_url(redis_url)
 
     def ping(self) -> bool:
         """Check Redis connectivity."""

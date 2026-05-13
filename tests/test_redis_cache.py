@@ -1,7 +1,5 @@
-"""Tests for SharedRedisCache — requires Redis running on localhost:6379.
+"""Tests for SharedRedisCache using in-process fakeredis (RAM, no Redis daemon)."""
 
-Start Redis with: docker compose up -d
-"""
 from __future__ import annotations
 
 import time
@@ -10,29 +8,13 @@ import pytest
 
 from reliability_lab.cache import SharedRedisCache
 
-
-def _redis_available() -> bool:
-    try:
-        import redis as redis_lib
-
-        r = redis_lib.Redis.from_url("redis://localhost:6379/0")
-        r.ping()
-        r.close()
-        return True
-    except Exception:
-        return False
-
-
-pytestmark = pytest.mark.skipif(
-    not _redis_available(),
-    reason="Redis not running — start with: docker compose up -d",
-)
+_FAKE_URL = "fakeredis://pytest_shared/0"
 
 
 @pytest.fixture
 def cache() -> SharedRedisCache:  # type: ignore[misc]
     c = SharedRedisCache(
-        redis_url="redis://localhost:6379/0",
+        redis_url=_FAKE_URL,
         ttl_seconds=60,
         similarity_threshold=0.5,
         prefix="rl:test:",
@@ -44,7 +26,6 @@ def cache() -> SharedRedisCache:  # type: ignore[misc]
 
 
 def test_redis_connection(cache: SharedRedisCache) -> None:
-    """Verifies Redis connectivity — should pass before implementing get/set."""
     assert cache.ping()
 
 
@@ -57,7 +38,7 @@ def test_set_and_exact_get(cache: SharedRedisCache) -> None:
 
 def test_ttl_expiry() -> None:
     c = SharedRedisCache(
-        redis_url="redis://localhost:6379/0",
+        redis_url="fakeredis://pytest_ttl/0",
         ttl_seconds=1,
         similarity_threshold=0.5,
         prefix="rl:test:ttl:",
@@ -72,15 +53,15 @@ def test_ttl_expiry() -> None:
 
 
 def test_shared_state_across_instances() -> None:
-    """Two SharedRedisCache instances on same Redis should see same data."""
+    """Two SharedRedisCache instances on the same fakeredis URL share one keyspace."""
     c1 = SharedRedisCache(
-        redis_url="redis://localhost:6379/0",
+        redis_url=_FAKE_URL,
         ttl_seconds=60,
         similarity_threshold=0.5,
         prefix="rl:test:shared:",
     )
     c2 = SharedRedisCache(
-        redis_url="redis://localhost:6379/0",
+        redis_url=_FAKE_URL,
         ttl_seconds=60,
         similarity_threshold=0.5,
         prefix="rl:test:shared:",

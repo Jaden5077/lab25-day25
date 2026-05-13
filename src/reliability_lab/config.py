@@ -25,7 +25,7 @@ class CacheConfig(BaseModel):
     backend: str = "memory"  # "memory" or "redis"
     ttl_seconds: int = Field(gt=0)
     similarity_threshold: float = Field(ge=0.0, le=1.0)
-    redis_url: str = "redis://localhost:6379/0"
+    redis_url: str = "fakeredis://lab/0"
 
 
 class LoadTestConfig(BaseModel):
