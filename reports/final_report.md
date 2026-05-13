@@ -1,0 +1,71 @@
+# Day 10 Reliability Final Report
+
+## Metrics Summary
+
+| Metric | Value |
+|---|---:|
+| availability | 0.99 |
+| cache_hit_rate | 0.675 |
+| circuit_open_count | 4 |
+| error_rate | 0.01 |
+| estimated_cost | 0.029112 |
+| estimated_cost_saved | 0.135 |
+| fallback_success_rate | 0.9512 |
+| latency_p50_ms | 0.11 |
+| latency_p95_ms | 502.94 |
+| latency_p99_ms | 529.78 |
+| recovery_time_ms | 2297.248959541321 |
+| total_requests | 200 |
+
+## Chaos Scenarios
+
+| Scenario | Status |
+|---|---|
+| primary_timeout_100 | pass |
+| primary_flaky_50 | pass |
+| cache_stale_candidate | pass |
+| cache_latency_ab | pass |
+| all_healthy | pass |
+
+## Cache comparison (JSON)
+
+```json
+{
+  "cache_latency_ab": {
+    "without_cache": {
+      "total_requests": 40,
+      "availability": 1.0,
+      "error_rate": 0.0,
+      "latency_p50_ms": 232.45,
+      "latency_p95_ms": 504.85,
+      "latency_p99_ms": 531.91,
+      "fallback_success_rate": 1.0,
+      "cache_hit_rate": 0.0,
+      "circuit_open_count": 2,
+      "recovery_time_ms": null,
+      "estimated_cost": 0.019506,
+      "estimated_cost_saved": 0.0,
+      "scenarios": {}
+    },
+    "with_cache": {
+      "total_requests": 40,
+      "availability": 1.0,
+      "error_rate": 0.0,
+      "latency_p50_ms": 0.1,
+      "latency_p95_ms": 503.5,
+      "latency_p99_ms": 534.84,
+      "fallback_success_rate": 1.0,
+      "cache_hit_rate": 0.625,
+      "circuit_open_count": 1,
+      "recovery_time_ms": 2275.818347930908,
+      "estimated_cost": 0.00592,
+      "estimated_cost_saved": 0.025,
+      "scenarios": {}
+    }
+  }
+}
+```
+
+## Analysis
+
+Summarize failures, fallback behavior, and production changes you would make next.
