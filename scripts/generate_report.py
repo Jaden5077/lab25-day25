@@ -19,18 +19,20 @@ def main() -> None:
         "| Metric | Value |",
         "|---|---:|",
     ]
-    for key, value in metrics.items():
-        if key == "scenarios":
+    for key, value in sorted(metrics.items()):
+        if key in ("scenarios", "cache_comparison"):
             continue
         lines.append(f"| {key} | {value} |")
     lines += ["", "## Chaos Scenarios", "", "| Scenario | Status |", "|---|---|"]
     for key, value in metrics.get("scenarios", {}).items():
         lines.append(f"| {key} | {value} |")
+    if "cache_comparison" in metrics:
+        lines += ["", "## Cache comparison (JSON)", "", "```json", json.dumps(metrics["cache_comparison"], indent=2), "```"]
     lines += [
         "",
-        "## Analysis TODO(student)",
+        "## Analysis",
         "",
-        "Explain what failed, why the fallback path worked or did not work, and what you would change before production.",
+        "Summarize failures, fallback behavior, and production changes you would make next.",
     ]
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text("\n".join(lines))

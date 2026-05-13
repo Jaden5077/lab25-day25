@@ -36,6 +36,9 @@ class ScenarioConfig(BaseModel):
     name: str
     description: str = ""
     provider_overrides: dict[str, float] = Field(default_factory=dict)
+    cache_enabled: bool | None = None
+    similarity_threshold: float | None = Field(default=None, ge=0.0, le=1.0)
+    run_cache_ab_comparison: bool = False
 
 
 class LabConfig(BaseModel):
@@ -44,6 +47,7 @@ class LabConfig(BaseModel):
     cache: CacheConfig
     load_test: LoadTestConfig
     scenarios: list[ScenarioConfig] = Field(default_factory=list)
+    cost_budget: float | None = Field(default=None, ge=0.0)
 
 
 def load_config(path: str | Path) -> LabConfig:

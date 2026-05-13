@@ -10,6 +10,8 @@ def test_default_config_loads() -> None:
 
 def test_scenarios_loaded() -> None:
     config = load_config("configs/default.yaml")
-    assert len(config.scenarios) >= 2
+    assert len(config.scenarios) >= 5
     names = [s.name for s in config.scenarios]
     assert "primary_timeout_100" in names
+    assert "cache_stale_candidate" in names
+    assert "cache_latency_ab" in names

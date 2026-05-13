@@ -10,5 +10,23 @@ def test_percentile() -> None:
 def test_report_dict_contains_required_metrics() -> None:
     m = RunMetrics(total_requests=2, successful_requests=1, failed_requests=1, latencies_ms=[100, 200])
     report = m.to_report_dict()
-    for key in ["availability", "error_rate", "latency_p50_ms", "latency_p95_ms", "cache_hit_rate"]:
+    for key in [
+        "availability",
+        "error_rate",
+        "latency_p50_ms",
+        "latency_p95_ms",
+        "latency_p99_ms",
+        "cache_hit_rate",
+    ]:
         assert key in report
+
+
+def test_report_dict_includes_cache_comparison_when_set() -> None:
+    m = RunMetrics(
+        total_requests=1,
+        successful_requests=1,
+        latencies_ms=[10.0],
+        cache_comparison={"ab": {"without_cache": {"x": 1}, "with_cache": {"x": 2}}},
+    )
+    report = m.to_report_dict()
+    assert "cache_comparison" in report
